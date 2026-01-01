@@ -15,11 +15,34 @@ channel.exchange_declare(
     durable=True,
 )
 
+channel.queue_declare(
+    queue="payments_queue",
+    durable=True,
+)
+
+channel.queue_bind(
+    queue="payments_queue",
+    exchange="_routing",
+    routing_key="payments",
+)
+
+channel.queue_declare(
+    queue="analytics_queue",
+    durable=True,
+)
+
+channel.queue_bind(
+    queue="analytics_queue",
+    exchange="_routing",
+    routing_key="analytics",
+)
+
+
 message = "This is a routed message."
 
 channel.basic_publish(
     exchange="_routing",
-    routing_key="payments",
+    routing_key="analytics",
     properties=pika.BasicProperties(
         delivery_mode=pika.DeliveryMode.Persistent,
     ),

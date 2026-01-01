@@ -15,13 +15,14 @@ channel.exchange_declare(
     durable=True,
 )
 
+queue_name = "analytics_queue"  # queue.method.queue
+
 queue = channel.queue_declare(
-    queue="",
-    exclusive=True,
+    queue=queue_name,
+    #   exclusive=True,
     durable=True,
 )
 
-queue_name = queue.method.queue
 
 channel.queue_bind(
     queue=queue_name,

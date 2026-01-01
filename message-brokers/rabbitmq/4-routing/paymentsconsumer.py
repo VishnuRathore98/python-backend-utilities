@@ -16,12 +16,12 @@ channel.exchange_declare(
 )
 
 queue = channel.queue_declare(
-    queue="",
-    exclusive=True,
+    queue="payments_queue",
+    #    exclusive=True,
     durable=True,
 )
 
-queue_name = queue.method.queue
+queue_name = "payments_queue"  # queue.method.queue
 
 channel.queue_bind(
     queue=queue_name,
