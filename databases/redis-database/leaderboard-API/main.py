@@ -11,6 +11,20 @@ r = redis.Redis(
 
 LEADERBOARD_KEY = "game:leaderboard"
 
+@app.post("/score/increment")
+def increment_score(player: str, points: int = 1):
+    new_score = r.zincrby(
+        LEADERBOARD_KEY,
+        points,
+        player
+    )
+
+    return {
+        "message": "Score incremented",
+        "player": player,
+        "new_score": new_score
+    }
+
 @app.post("/score")
 def add_score(player: str, score: int):
     r.zadd(LEADERBOARD_KEY, {player: score})
