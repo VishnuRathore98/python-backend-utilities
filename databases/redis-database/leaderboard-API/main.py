@@ -1,15 +1,16 @@
 from fastapi import FastAPI, HTTPException
+from dashboard import router
 import redis
+
 
 app = FastAPI()
 
-r = redis.Redis(
-    host="localhost",
-    port=6379,
-    decode_responses=True
-)
+app.include_router(router=router)
+
+r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
 LEADERBOARD_KEY = "game:leaderboard"
+
 
 @app.post("/score/increment")
 def increment_score(player: str, points: int):
@@ -25,34 +26,24 @@ def increment_score(player: str, points: int):
     # set corrected score
     r.zadd(LEADERBOARD_KEY, {player: new_score})
 
-    return {
-        "player": player,
-        "score": new_score
-    }
+    return {"player": player, "score": new_score}
 
 
 @app.post("/score")
 def add_score(player: str, score: int):
     r.zadd(LEADERBOARD_KEY, {player: score})
-    return {
-        "message": "Score updated",
-        "player": player,
-        "score": score
-    }
+    return {"message": "Score updated", "player": player, "score": score}
+
 
 @app.get("/leaderboard")
 def get_leaderboard(limit: int = 10):
-    players = r.zrevrange(
-        LEADERBOARD_KEY,
-        0,
-        limit - 1,
-        withscores=True
-    )
+    players = r.zrevrange(LEADERBOARD_KEY, 0, limit - 1, withscores=True)
 
     return [
         {"rank": i + 1, "player": name, "score": score}
         for i, (name, score) in enumerate(players)
     ]
+
 
 @app.get("/rank/{player}")
 def get_rank(player: str):
@@ -65,7 +56,5 @@ def get_rank(player: str):
     return {
         "player": player,
         "rank": rank + 1,  # human-friendly
-        "score": score
+        "score": score,
     }
-
-
