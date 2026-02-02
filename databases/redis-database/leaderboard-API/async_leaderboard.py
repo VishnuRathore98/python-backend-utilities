@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from redis.asyncio import Redis
 
-app = FastAPI()
+router = APIRouter()
 
 redis = Redis(
     host="localhost",
@@ -11,7 +11,7 @@ redis = Redis(
 
 LEADERBOARD_KEY = "game:leaderboard"
 
-@app.post("/score/increment")
+@router.post("/score/increment")
 async def increment_score(player: str, points: int = 1):
     new_score = await redis.zincrby(
         LEADERBOARD_KEY,
@@ -25,7 +25,7 @@ async def increment_score(player: str, points: int = 1):
     }
 
 
-@app.get("/leaderboard")
+@router.get("/leaderboard")
 async def get_leaderboard(limit: int = 10):
     players = await redis.zrevrange(
         LEADERBOARD_KEY,
@@ -39,7 +39,7 @@ async def get_leaderboard(limit: int = 10):
         for i, (name, score) in enumerate(players)
     ]
 
-@app.get("/rank/{player}")
+@router.get("/rank/{player}")
 async def get_rank(player: str):
     rank = await redis.zrevrank(LEADERBOARD_KEY, player)
     score = await redis.zscore(LEADERBOARD_KEY, player)
