@@ -1,11 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from dashboard import router
+from async_leaderboard import router as async_router
 import redis
 
 
 app = FastAPI()
 
 app.include_router(router=router)
+app.include_router(router=async_router)
 
 r = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
