@@ -47,3 +47,25 @@ async def weekly_leaderboard(limit: int = 10):
         for i, (name, score) in enumerate(players)
     ]
 
+@app.get("/rank/{scope}/{player}")
+async def get_rank(scope: str, player: str):
+    if scope == "global":
+        key = GLOBAL_KEY
+    elif scope == "weekly":
+        key = weekly_key()
+    else:
+        raise HTTPException(status_code=400, detail="Invalid scope")
+
+    rank = await redis.zrevrank(key, player)
+    score = await redis.zscore(key, player)
+
+    if rank is None:
+        raise HTTPException(status_code=404, detail="Player not found")
+
+    return {
+        "scope": scope,
+        "player": player,
+        "rank": rank + 1,
+        "score": score
+    }
+
