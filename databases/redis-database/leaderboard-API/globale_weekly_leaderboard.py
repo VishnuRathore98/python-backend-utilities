@@ -69,3 +69,9 @@ async def get_rank(scope: str, player: str):
         "score": score
     }
 
+FOUR_WEEKS = 60 * 60 * 24 * 28
+
+@app.on_event("startup")
+async def expire_weekly():
+    await redis.expire(weekly_key(), FOUR_WEEKS)
+
